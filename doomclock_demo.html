@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Doom Clock Demo</title>
+</head>
+<body>
+  <h1>Doom Clock Demo</h1>
+
+  <p>Current Doom: <strong><span id="doomValue"></span></strong></p>
+
+  <button onclick="tickOnce()">Tick -1</button>
+  <button onclick="addTime()">Add +10</button>
+  <button onclick="resetDoom()">Reset</button>
+  <button onclick="runDoomTest()">Run Doom Test (milestones)</button>
+
+  <h2>Log</h2>
+  <pre id="logBox"
+       style="border:1px solid #ccc; padding:8px; max-width:500px; min-height:120px;"></pre>
+
+  <!-- loading DoomClock class -->
+  <script src="doomclock.js"></script>
+
+  <script>
+    const doom = new DoomClock({
+      start: 100,
+      milestonePercents: {
+        75: (p, e, log) => log.push("[75%] The chanting grows louder; reality shudders."),
+        50: (p, e, log) => log.push("[50%] Sigils flare; enemies feel stronger."),
+        25: (p, e, log) => log.push("[25%] The veil thins; your mind frays.")
+      },
+      onZero: (p, e, log) => log.push("[0%] Time expires. The world succumbs to an eternal slumber.")
+    });
+
+    const doomSpan = document.getElementById("doomValue");
+    const logBox = document.getElementById("logBox");
+
+    function updateDisplay(extraLog = []) {
+      doomSpan.textContent = `${doom.ticks} / ${doom.start}`;
+      if (extraLog.length > 0) {
+        logBox.textContent += extraLog.join("\n") + "\n";
+      }
+    }
+
+    function tickOnce() {
+      const log = [];
+      doom.countdown(1, { log, reason: "Manual tick" });
+      updateDisplay(log);
+    }
+
+    function addTime() {
+      const log = [];
+      doom.addTime(10, { log, reason: "Gift of time" });
+      updateDisplay(log);
+    }
+
+    function resetDoom() {
+      doom.reset();
+      logBox.textContent += "[RESET] Doom clock reset.\n";
+      updateDisplay();
+    }
+
+    function runDoomTest() {
+      const log = [];
+      doom.reset();
+      logBox.textContent += "\n[TEST] Running Doom Clock test...\n";
+      doom.countdown(30, { log, reason: "Testing 75%" });
+      doom.countdown(25, { log, reason: "Testing 50%" });
+      doom.countdown(30, { log, reason: "Testing 25%" });
+      doom.countdown(20, { log, reason: "Final countdown" });
+      updateDisplay(log);
+    }
+
+    // initial display
+    updateDisplay();
+  </script>
+</body>
+</html>
